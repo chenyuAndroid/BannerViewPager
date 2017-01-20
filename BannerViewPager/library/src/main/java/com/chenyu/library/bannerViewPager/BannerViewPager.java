@@ -3,6 +3,8 @@ package com.chenyu.library.bannerViewPager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -15,8 +17,8 @@ import android.widget.FrameLayout;
  * BannerViewPager支持指示器以及自动轮播。
  *
  * @author Chen Yu
- * @version 1.0.0
- * @date 2016-10-03
+ * @version 1.1.0
+ * @date 2017-01-20
  */
 public class BannerViewPager extends FrameLayout implements ViewPager.OnPageChangeListener {
 
@@ -171,5 +173,61 @@ public class BannerViewPager extends FrameLayout implements ViewPager.OnPageChan
             mViewPagerScrollState = ViewPager.SCROLL_STATE_IDLE;
         }
 
+    }
+
+    /**
+     * Save the state of this BannerViewPager.The current position will be saved.
+     * @return Parcelable
+     */
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable parcelable = super.onSaveInstanceState();
+        SavedState ss = new SavedState(parcelable);
+        ss.currentPosition = mCurrentPosition;
+        return ss;
+    }
+
+    /**
+     * Restore the BannerViewPager from the previous state.
+     * @param state
+     */
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        mViewPager.setCurrentItem(ss.currentPosition);
+    }
+
+    static class SavedState extends BaseSavedState{
+
+        int currentPosition;
+
+        public SavedState(Parcel source) {
+            super(source);
+            currentPosition = source.readInt();
+        }
+
+        public SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(currentPosition);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>(){
+
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return new SavedState(source);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }
