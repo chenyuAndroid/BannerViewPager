@@ -6,7 +6,7 @@ ViewPager with indicator and auto-rolling function.
 ![pic02](https://github.com/chenyuAndroid/BannerViewPager/blob/master/BannerViewPager/pic/banner02.gif)
 
 
-#How to use it?
+# How to use it?
 1、add the BannerViewPager to your xml files：
 ```xml
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -40,4 +40,6 @@ mAdapter = new ViewPagerAdapter(mViews, new OnPageClickListener() {
 //设置适配器
 bannerViewPager.setAdapter(mAdapter);
 ```
-
+# Update 
+## 2017-04-04
+Fix some bugs which may lead to the a memory leak.For example,it will remove the runnable from view each time the BannerViewPager becomes INVISIBLE or GONE.It means that BannerViewPager will stop auto-rolling while it is INVISIBLE or GONE.
