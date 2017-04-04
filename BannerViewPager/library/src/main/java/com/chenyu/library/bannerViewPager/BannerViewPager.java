@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -35,27 +36,9 @@ public class BannerViewPager extends FrameLayout implements ViewPager.OnPageChan
     //the interval between rollings
     private int mAutoRollingTime = 4000;
     private int mReleasingTime = 0;
+    private boolean isFirstVisible;
     private static final int MESSAGE_AUTO_ROLLING = 0X1001;
     private static final int MESSAGE_AUTO_ROLLING_CANCEL = 0X1002;
-
-    private Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case MESSAGE_AUTO_ROLLING:
-                    if(mCurrentPosition == mAdapter.getCount() - 1){
-                        mViewPager.setCurrentItem(0,true);
-                    }else {
-                        mViewPager.setCurrentItem(mCurrentPosition + 1,true);
-                    }
-                    postDelayed(mAutoRollingTask,mAutoRollingTime);
-                    break;
-                case MESSAGE_AUTO_ROLLING_CANCEL:
-                    postDelayed(mAutoRollingTask,mAutoRollingTime);
-                    break;
-            }
-        }
-    };
 
     public BannerViewPager(Context context) {
         this(context, null);
@@ -85,6 +68,7 @@ public class BannerViewPager extends FrameLayout implements ViewPager.OnPageChan
         indicatorlp.gravity = Gravity.BOTTOM | Gravity.CENTER;
         indicatorlp.bottomMargin = 20;
         mIndicator.setLayoutParams(indicatorlp);
+        isFirstVisible = true;
     }
 
     public void setAutoRolling(boolean isAutoRolling){
@@ -143,12 +127,17 @@ public class BannerViewPager extends FrameLayout implements ViewPager.OnPageChan
             if(mViewPagerScrollState == ViewPager.SCROLL_STATE_IDLE){
                 //if user's finger just left the screen,we should wait for a while.
                 if(timediff >= mAutoRollingTime * 0.8){
-                    mHandler.sendEmptyMessage(MESSAGE_AUTO_ROLLING);
+                    if(mCurrentPosition == mAdapter.getCount() - 1){
+                        mViewPager.setCurrentItem(0,true);
+                    }else {
+                        mViewPager.setCurrentItem(mCurrentPosition + 1,true);
+                    }
+                    postDelayed(mAutoRollingTask,mAutoRollingTime);
                 }else {
-                    mHandler.sendEmptyMessage(MESSAGE_AUTO_ROLLING_CANCEL);
+                    postDelayed(mAutoRollingTask,mAutoRollingTime);
                 }
             }else if(mViewPagerScrollState == ViewPager.SCROLL_STATE_DRAGGING){
-                mHandler.sendEmptyMessage(MESSAGE_AUTO_ROLLING_CANCEL);
+                postDelayed(mAutoRollingTask,mAutoRollingTime);
             }
 
         }
@@ -172,6 +161,29 @@ public class BannerViewPager extends FrameLayout implements ViewPager.OnPageChan
             mReleasingTime = (int) System.currentTimeMillis();
             mViewPagerScrollState = ViewPager.SCROLL_STATE_IDLE;
         }
+
+    }
+
+    /**
+     * 每当当前窗口被隐藏、至于后台时，Runnable就会停止并被取消，防止内存泄漏。
+     * @param visibility
+     */
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        if (!isAutoRolling) return;
+        if (visibility != VISIBLE){
+            Log.d("cylog","remove callbacks");
+            removeCallbacks(mAutoRollingTask);
+        }else{
+            if (isFirstVisible){
+                isFirstVisible = false;
+            }else {
+                Log.d("cylog","post runnable");
+                postDelayed(mAutoRollingTask,mAutoRollingTime);
+            }
+        }
+
 
     }
 
