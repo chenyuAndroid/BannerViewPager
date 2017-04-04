@@ -19,14 +19,14 @@ import java.util.List;
 public class ViewPagerAdapter extends PagerAdapter implements DataSetSubject {
 
     private List<DataSetSubscriber> mSubscribers = new ArrayList<>();
-    private List<? extends View> mDataViews;
+    private List<View> mDataViews;
     private OnPageClickListener mOnPageClickListener;
 
     /**
      * 构造函数
      * @param mDataViews view列表
      */
-    public ViewPagerAdapter(List<? extends View> mDataViews,OnPageClickListener listener) {
+    public ViewPagerAdapter(List<View> mDataViews,OnPageClickListener listener) {
         this.mDataViews = mDataViews;
         this.mOnPageClickListener = listener;
     }
