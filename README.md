@@ -41,5 +41,5 @@ mAdapter = new ViewPagerAdapter(mViews, new OnPageClickListener() {
 bannerViewPager.setAdapter(mAdapter);
 ```
 # Update 
-2017-04-04
+### 2017-04-04
 1、Fix some bugs which may lead to the a memory leak.For example,it will remove the runnable from view each time the BannerViewPager becomes INVISIBLE or GONE.It means that BannerViewPager will stop auto-rolling while it is INVISIBLE or GONE.
